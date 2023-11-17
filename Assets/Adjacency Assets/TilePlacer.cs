@@ -9,6 +9,7 @@ public class TilePlacer : MonoBehaviour
     GameObject tileObj;
 
     int numTiles = 1200;
+    float scale = 30;
     Dictionary<Vector2, TileBlock> tiles;
 
 
@@ -63,7 +64,7 @@ public class TilePlacer : MonoBehaviour
                     newSlotSettings[i] = AdjacencyLookup.RandomAdjacency();
                 }
             }
-            GameObject newTileObj = Instantiate(tileObj, new Vector3(newTileCoords.x, 0, newTileCoords.y) * 10, Quaternion.identity, transform);
+            GameObject newTileObj = Instantiate(tileObj, new Vector3(newTileCoords.x, 0, newTileCoords.y) * scale, Quaternion.identity, transform);
             TileBlock newtile = newTileObj.GetComponent<TileBlock>();
             newtile.Initialise();
             newtile.AssignSettings(newSlotSettings);
