@@ -59,6 +59,8 @@
     <Compile Include="Assets\TileBlock.cs" />
     <Compile Include="Assets\Adjacency.cs" />
     <Compile Include="Assets\AdjacencySettings.cs" />
+    <Compile Include="Assets\TilePlacer.cs" />
+    <Compile Include="Assets\AdjacencyLookup.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
