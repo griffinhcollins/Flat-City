@@ -8,6 +8,8 @@ public class TilePlacer : MonoBehaviour
     [SerializeField]
     GameObject tileObj;
 
+
+
     int numTiles = 1200;
     float scale = 30;
     Dictionary<Vector2, TileBlock> tiles;
@@ -31,7 +33,7 @@ public class TilePlacer : MonoBehaviour
             c2OpenSpace += used.Contains(c2Neighbour) ? 1 : 0;
         }
 
-        return c1;
+        return c1OpenSpace < c2OpenSpace ? c1 : c2;
     }
 
     void GenerateTiles()
@@ -40,6 +42,7 @@ public class TilePlacer : MonoBehaviour
         tiles = new();
         // Base case add the starting tile
         GameObject rootTileObj = Instantiate(tileObj, Vector3.zero, Quaternion.identity, transform);
+        rootTileObj.name = Vector2.zero.ToString();
         TileBlock rootTile = rootTileObj.GetComponent<TileBlock>();
         rootTile.Initialise();
         rootTile.AssignSettings(AdjacencyLookup.RandomAdjacencySet());
@@ -77,6 +80,7 @@ public class TilePlacer : MonoBehaviour
                 continue;
             }
             GameObject newTileObj = Instantiate(tileObj, new Vector3(newTileCoords.x, 0, newTileCoords.y) * scale, Quaternion.identity, transform);
+            newTileObj.name = newTileCoords.ToString();
             TileBlock newtile = newTileObj.GetComponent<TileBlock>();
             newtile.Initialise();
             newtile.AssignSettings(newSlotSettings);
@@ -127,7 +131,8 @@ public class TilePlacer : MonoBehaviour
             // Magenta connects to nothing
             {3, magenta},
             // Magenta connects to nothing
-            {4, magenta}
+            {4, magenta},
+            {5, magenta}
         };
     }
 
@@ -149,7 +154,7 @@ public class TilePlacer : MonoBehaviour
     {
         List<Vector2> allNeighbours = GetNeighbourCoords(centre);
         List<Vector2> validNeighbours = new List<Vector2>();
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 4; i++)
         {
             if (tile.getAdjacency(i).hasConnections())
             {
