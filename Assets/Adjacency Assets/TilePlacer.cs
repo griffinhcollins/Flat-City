@@ -187,6 +187,24 @@ public class TilePlacer : MonoBehaviour
         GenerateTiles();
     }
 
+    void ResetMaze()
+    {
+        foreach (TileBlock tile in tiles.Values)
+        {
+            GameObject.Destroy(tile.gameObject);
+        }
+        tiles = tiles = new Dictionary<Vector2, TileBlock>();
+    }
+
+    private void Update()
+    {
+        if (Input.GetButtonDown("Jump"))
+        {
+            ResetMaze();
+            GenerateTiles();
+        }
+    }
+
     static void InitAdjacencySettings()
     {
 
