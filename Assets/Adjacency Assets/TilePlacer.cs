@@ -15,6 +15,7 @@ public class TilePlacer : MonoBehaviour
 
     Vector2 GetWeightedRandomTile(HashSet<Vector2> coordCandidates, HashSet<Vector2> used)
     {
+        // Finds two candidate tiles in the coordinate candidates and uses the currently existing tiles to pick one
         Vector2 c1 = coordCandidates.ElementAt(Random.Range(0, coordCandidates.Count));
         Vector2 c2 = coordCandidates.ElementAt(Random.Range(0, coordCandidates.Count));
 
@@ -30,7 +31,7 @@ public class TilePlacer : MonoBehaviour
             c2OpenSpace += used.Contains(c2Neighbour) ? 1 : 0;
         }
 
-        return c1OpenSpace > c2OpenSpace ? c1 : c2;
+        return c1;
     }
 
     void GenerateTiles()
@@ -43,26 +44,37 @@ public class TilePlacer : MonoBehaviour
         rootTile.Initialise();
         rootTile.AssignSettings(AdjacencyLookup.RandomAdjacencySet());
         tiles[Vector2.zero] = rootTile;
-        HashSet<Vector2> emptySlots = new HashSet<Vector2>(GetNeighbourCoords(Vector2.zero));
+        HashSet<Vector2> availableSlots = new HashSet<Vector2>(GetValidNeighbourCoords(Vector2.zero, rootTile));
         HashSet<Vector2> usedSlots = new HashSet<Vector2> { Vector2.zero };
 
-        while (tiles.Count < numTiles)
+        while (tiles.Count < numTiles && availableSlots.Count > 0)
         {
-            Vector2 newTileCoords = GetWeightedRandomTile(emptySlots, usedSlots);
-            emptySlots.Remove(newTileCoords);
+            Vector2 newTileCoords = GetWeightedRandomTile(availableSlots, usedSlots);
+            availableSlots.Remove(newTileCoords);
             Dictionary<int, AdjacencySettings> newSlotSettings = new Dictionary<int, AdjacencySettings>();
+
+            // Check if any of the neighbouring adjacencies forbid a tile here
+            bool valid = true;
             for (int i = 0; i < 4; i++)
             {
                 Vector2 neighbourCoords = newTileCoords + DirToVector2(i);
                 if (usedSlots.Contains(neighbourCoords))
                 {
                     newSlotSettings[i] = tiles[neighbourCoords].getAdjacency(AdjacencyLookup.ReverseDirection(i)).getSettings().GetRandomAllowedConnection();
-
+                    valid &= newSlotSettings[i] is not null;
+                    if (!valid)
+                    {
+                        break;
+                    }
                 }
                 else
                 {
                     newSlotSettings[i] = AdjacencyLookup.RandomAdjacency();
                 }
+            }
+            if (!valid)
+            {
+                continue;
             }
             GameObject newTileObj = Instantiate(tileObj, new Vector3(newTileCoords.x, 0, newTileCoords.y) * scale, Quaternion.identity, transform);
             TileBlock newtile = newTileObj.GetComponent<TileBlock>();
@@ -70,13 +82,21 @@ public class TilePlacer : MonoBehaviour
             newtile.AssignSettings(newSlotSettings);
             tiles[newTileCoords] = newtile;
             usedSlots.Add(newTileCoords);
-            foreach (Vector2 potentialNewEmptySlot in GetNeighbourCoords(newTileCoords))
+            foreach (Vector2 potentialNewEmptySlot in GetValidNeighbourCoords(newTileCoords, newtile))
             {
                 if (!usedSlots.Contains(potentialNewEmptySlot))
                 {
-                    emptySlots.Add(potentialNewEmptySlot);
+                    availableSlots.Add(potentialNewEmptySlot);
                 }
             }
+        }
+        if (availableSlots.Count > 0)
+        {
+            Debug.Log("Max Size Reached");
+        }
+        else
+        {
+            Debug.Log("No more valid spots");
         }
     }
 
@@ -91,21 +111,23 @@ public class TilePlacer : MonoBehaviour
     static void InitAdjacencySettings()
     {
 
-        AdjacencySettings green = new AdjacencySettings(0, Color.green, new List<int> { 0, 2, 3 });
-        AdjacencySettings red = new AdjacencySettings(1, Color.red, new List<int> { 1 });
-        AdjacencySettings blue = new AdjacencySettings(2, Color.blue, new List<int> { 0, 3 });
-        AdjacencySettings magenta = new AdjacencySettings(3, Color.magenta, new List<int> { 0, 2 });
+        AdjacencySettings green = new AdjacencySettings(0, Color.green, new List<int> { 0, 1, 2 });
+        AdjacencySettings red = new AdjacencySettings(1, Color.red, new List<int> { 0, 1 });
+        AdjacencySettings blue = new AdjacencySettings(2, Color.blue, new List<int> { 0 });
+        AdjacencySettings magenta = new AdjacencySettings(3, Color.magenta, new List<int> { });
 
         AdjacencyLookup.AdjSettings = new Dictionary<int, AdjacencySettings>
         {
-            // Green connects to anything
+            // Green connects to blue or red
             {0, green},
-            // Red connects to itself
+            // Blue connects to itself or green
             {1, red},
-            // Blue connects to Magenta and Green
+            // Red connects to green
             {2, blue},
-            // Magenta connects to anything but itself
-            {3, magenta}
+            // Magenta connects to nothing
+            {3, magenta},
+            // Magenta connects to nothing
+            {4, magenta}
         };
     }
 
@@ -122,6 +144,24 @@ public class TilePlacer : MonoBehaviour
         }
     }
 
+
+    List<Vector2> GetValidNeighbourCoords(Vector2 centre, TileBlock tile)
+    {
+        List<Vector2> allNeighbours = GetNeighbourCoords(centre);
+        List<Vector2> validNeighbours = new List<Vector2>();
+        for (int i = 0; i < 3; i++)
+        {
+            if (tile.getAdjacency(i).hasConnections())
+            {
+                validNeighbours.Add(allNeighbours[i]);
+            }
+            else
+            {
+                Debug.Log(allNeighbours[i] + " is invalid");
+            }
+        }
+        return validNeighbours;
+    }
 
     List<Vector2> GetNeighbourCoords(Vector2 centre)
     {

@@ -24,6 +24,7 @@ public class TileBlock : MonoBehaviour
     {
         for (int i = 0; i < 4; i++)
         {
+
             adjacencies[i].AssignSettings(orderedSettings[i]);
         }
     }

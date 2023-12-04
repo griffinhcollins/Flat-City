@@ -30,6 +30,11 @@ public class Adjacency : MonoBehaviour
         return settings;
     }
 
+    public bool hasConnections()
+    {
+        return settings.GetAllAllowedConnections().Count > 0;
+    }
+
     public void AssignNeighbour(TileBlock neighbour_)
     {
         neighbour = neighbour_;
