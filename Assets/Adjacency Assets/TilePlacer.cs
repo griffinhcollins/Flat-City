@@ -8,10 +8,20 @@ public class TilePlacer : MonoBehaviour
     [SerializeField]
     GameObject tileObj;
 
+    [SerializeField]
+    GameObject open1Obj;
+    [SerializeField]
+    GameObject openAdjObj;
+    [SerializeField]
+    GameObject openOppObj;
+    [SerializeField]
+    GameObject open3Obj;
+    [SerializeField]
+    GameObject open4Obj;
 
 
     int numTiles = 1200;
-    float scale = 30;
+    float scale = 10;
     Dictionary<Vector2, TileBlock> tiles;
 
 
@@ -39,7 +49,7 @@ public class TilePlacer : MonoBehaviour
     void GenerateTiles()
     {
 
-        tiles = new();
+        tiles = new Dictionary<Vector2, TileBlock>();
         // Base case add the starting tile
         GameObject rootTileObj = Instantiate(tileObj, Vector3.zero, Quaternion.identity, transform);
         rootTileObj.name = Vector2.zero.ToString();
@@ -49,7 +59,6 @@ public class TilePlacer : MonoBehaviour
         tiles[Vector2.zero] = rootTile;
         HashSet<Vector2> availableSlots = new HashSet<Vector2>(GetValidNeighbourCoords(Vector2.zero, rootTile));
         HashSet<Vector2> usedSlots = new HashSet<Vector2> { Vector2.zero };
-
         while (tiles.Count < numTiles && availableSlots.Count > 0)
         {
             Vector2 newTileCoords = GetWeightedRandomTile(availableSlots, usedSlots);
@@ -102,8 +111,74 @@ public class TilePlacer : MonoBehaviour
         {
             Debug.Log("No more valid spots");
         }
+
+
+
+        // Now set up correct gameobjs at all the locations
+        foreach (Vector2 coord in tiles.Keys)
+        {
+            TileBlock tile = tiles[coord];
+            List<Vector2> openNeighbours = NeighbourTiles(coord);
+
+            switch (openNeighbours.Count)
+            {
+                case 0:
+                    break;
+                case 1:
+                    Vector2 opendir = openNeighbours[0] - coord;
+                    Vector3 openFaceDirection = new Vector3(opendir.x, 0, opendir.y);
+                    GameObject tileDeadEnd = Instantiate(open1Obj, tile.transform.position + Vector3.up * 2, Quaternion.FromToRotation(Vector3.right, openFaceDirection), tile.transform);
+                    break;
+                case 2:
+                    Vector2 open1 = openNeighbours[0] - coord;
+                    Vector3 vec3open1 = new Vector3(open1.x, 0, open1.y);
+                    Vector2 open2 = openNeighbours[1] - coord;
+                    Vector3 vec3open2 = new Vector3(open2.x, 0, open2.y);
+                   
+                    bool adjacent = Vector2.Dot(open1, open2) == 0;
+                    if (adjacent)
+                    {
+                        Vector3 rightFaceDir = Quaternion.AngleAxis(90, Vector3.up) * vec3open1 == vec3open2 ? vec3open2 : vec3open1;
+                        GameObject tileCorner = Instantiate(openAdjObj, tile.transform.position + Vector3.up * 2, Quaternion.FromToRotation(Vector3.right, rightFaceDir), tile.transform);
+                    }
+                    else
+                    {
+                        // Corridor
+                        
+                        GameObject tileCorridor = Instantiate(openOppObj, tile.transform.position + Vector3.up * 2, Quaternion.FromToRotation(Vector3.right, vec3open1), tile.transform);
+
+                    }
+                    break;
+                case 3:
+                    // Find the missing direction
+                    List<Vector2> allDirs = GetNeighbourCoords(coord);
+                    Vector2 wallDirV2 = allDirs.Except(openNeighbours).First() - coord;
+                    Vector3 wallDirection = new Vector3(wallDirV2.x, 0, wallDirV2.y);
+                    GameObject tileWall = Instantiate(open3Obj, tile.transform.position + Vector3.up * 2, Quaternion.FromToRotation(Vector3.right, wallDirection), tile.transform);
+                    break;
+                case 4:
+                    GameObject tileOpenSpace = Instantiate(open4Obj, tile.transform.position + Vector3.up * 2, Quaternion.identity, tile.transform);
+                    break;
+                default:
+                    Debug.LogError("Failed to load tile with " + openNeighbours.Count + " open sides");
+                    break;
+            }
+        }
     }
 
+    List<Vector2> NeighbourTiles(Vector2 centre)
+    {
+        List<Vector2> neighbourCoords = GetNeighbourCoords(centre);
+        List<Vector2> existingTiles = new List<Vector2>();
+        foreach (Vector2 coord in neighbourCoords)
+        {
+            if (tiles.ContainsKey(coord))
+            {
+                existingTiles.Add(coord);
+            }
+        }
+        return existingTiles;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -131,8 +206,7 @@ public class TilePlacer : MonoBehaviour
             // Magenta connects to nothing
             {3, magenta},
             // Magenta connects to nothing
-            {4, magenta},
-            {5, magenta}
+            {4, magenta}
         };
     }
 
@@ -159,10 +233,6 @@ public class TilePlacer : MonoBehaviour
             if (tile.getAdjacency(i).hasConnections())
             {
                 validNeighbours.Add(allNeighbours[i]);
-            }
-            else
-            {
-                Debug.Log(allNeighbours[i] + " is invalid");
             }
         }
         return validNeighbours;
