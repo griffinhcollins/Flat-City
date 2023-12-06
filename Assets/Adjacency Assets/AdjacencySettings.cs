@@ -10,7 +10,6 @@ public class AdjacencySettings
     int ID;
     Color colour;
     HashSet<int> allowedIDs;
-    HashSet<AdjacencySettings> allowedConnections;
     
     public AdjacencySettings(int ID_, Color colour_)
     {
@@ -23,47 +22,46 @@ public class AdjacencySettings
         ID = ID_;
         colour = colour_;
         allowedIDs = new HashSet<int>(allowedIDs_);
-        allowedConnections = new();
     }
 
-    public void AddConnection(AdjacencySettings validNeighbour)
+
+    public void AddConnection(int ID)
     {
-        allowedIDs.Add(validNeighbour.getID());
-        allowedConnections.Add(validNeighbour);
+        allowedIDs.Add(ID);
     }
 
-    public void AddConnections(ICollection<AdjacencySettings> validNeighbours)
+    public void AddConnections(ICollection<int> validNeighbourIDs)
     {
-        foreach (AdjacencySettings validNeighbour in validNeighbours)
+        foreach (int ID in validNeighbourIDs)
         {
-            AddConnection(validNeighbour);
+            AddConnection(ID);
         }
     }
 
-    public bool CheckValidConnection(AdjacencySettings checkNeighbour)
+    public bool CheckValidConnection(int ID)
     {
-        allowedConnections = GetAllAllowedConnections();
-        return allowedConnections.Contains(checkNeighbour);
+        allowedIDs = GetAllAllowedConnections();
+        return allowedIDs.Contains(ID);
     }
 
-    public HashSet<AdjacencySettings> GetAllAllowedConnections()
+    public HashSet<int> GetAllAllowedConnections()
     {
         foreach (int ID in allowedIDs)
         {
-            allowedConnections.Add(AdjacencyLookup.Lookup(ID));
-        };
-
-        return allowedConnections;
+            AddConnection(ID);
+        }
+        return allowedIDs;
     }
 
-    public AdjacencySettings GetRandomAllowedConnection()
+    public Dictionary<int, AdjacencySettings> GetRandomValidTileSettings()
     {
-        allowedConnections = GetAllAllowedConnections();
-        if (allowedConnections.Count == 0)
+        allowedIDs = GetAllAllowedConnections();
+        if (allowedIDs.Count == 0)
         {
             return null;
         }
-        return allowedConnections.ElementAt(Random.Range(0, allowedConnections.Count));
+        int ID_used = allowedIDs.ElementAt(Random.Range(0, allowedIDs.Count));
+        return AdjacencyLookup.TileSettingsLookup(ID_used);
     }
 
 

@@ -55,7 +55,7 @@ public class TilePlacer : MonoBehaviour
         rootTileObj.name = Vector2.zero.ToString();
         TileBlock rootTile = rootTileObj.GetComponent<TileBlock>();
         rootTile.Initialise();
-        rootTile.AssignSettings(AdjacencyLookup.RandomAdjacencySet());
+        rootTile.AssignSettings(AdjacencyLookup.TileSettingsLookup(0)); // Tile 0 is always open on all sides with anything
         tiles[Vector2.zero] = rootTile;
         HashSet<Vector2> availableSlots = new HashSet<Vector2>(GetValidNeighbourCoords(Vector2.zero, rootTile));
         HashSet<Vector2> usedSlots = new HashSet<Vector2> { Vector2.zero };
@@ -67,27 +67,57 @@ public class TilePlacer : MonoBehaviour
 
             // Check if any of the neighbouring adjacencies forbid a tile here
             bool valid = true;
+            HashSet<AdjacencySettings> existingNeighbourAdjacencies = new();
+            List<bool> openings = new List<bool> { false, false, false, false }; // index direction, set true if there exists an open neighbour in that direction
             for (int i = 0; i < 4; i++)
             {
                 Vector2 neighbourCoords = newTileCoords + DirToVector2(i);
                 if (usedSlots.Contains(neighbourCoords))
                 {
-                    newSlotSettings[i] = tiles[neighbourCoords].getAdjacency(AdjacencyLookup.ReverseDirection(i)).getSettings().GetRandomAllowedConnection();
-                    valid &= newSlotSettings[i] is not null;
+                    AdjacencySettings neighbourAdjacency = tiles[neighbourCoords].getAdjacency(AdjacencyLookup.ReverseDirection(i)).getSettings();
+                    valid &= neighbourAdjacency.GetAllAllowedConnections().Count > 0;
                     if (!valid)
                     {
                         break;
                     }
-                }
-                else
-                {
-                    newSlotSettings[i] = AdjacencyLookup.RandomAdjacency();
+                    else
+                    {
+                        openings[i] = true;
+                        existingNeighbourAdjacencies.Add(neighbourAdjacency);
+                    }
                 }
             }
             if (!valid)
             {
                 continue;
             }
+
+            // Now that we know we're putting a tile down, we can decide what it will be
+            if (existingNeighbourAdjacencies.Count == 1)
+            {
+                // Free reign from whatever our only neighbour's adjacency is
+                newSlotSettings = existingNeighbourAdjacencies.First().GetRandomValidTileSettings();
+
+            }
+            else
+            {
+                // Check for corridors
+                if (openings == new List<bool>{ true, true, false, false })
+                {
+                    newSlotSettings = AdjacencyLookup.TileSettingsLookup(2); // 2 is x-axis corridor
+                }
+                else if (openings == new List<bool> { false, false, true, true })
+                {
+                    newSlotSettings = AdjacencyLookup.TileSettingsLookup(3); // 2 is x-axis corridor
+                }
+                else
+                {
+                    // Just put down something random
+                    newSlotSettings = AdjacencyLookup.RandomAdjacencySet();
+                }
+            }
+
+
             GameObject newTileObj = Instantiate(tileObj, new Vector3(newTileCoords.x, 0, newTileCoords.y) * scale, Quaternion.identity, transform);
             newTileObj.name = newTileCoords.ToString();
             TileBlock newtile = newTileObj.GetComponent<TileBlock>();
@@ -208,38 +238,62 @@ public class TilePlacer : MonoBehaviour
     static void InitAdjacencySettings()
     {
 
-        AdjacencySettings green = new AdjacencySettings(0, Color.green, new List<int> { 0, 1, 2 });
+        
+
+        AdjacencySettings green = new AdjacencySettings(0, Color.green, new List<int> { 1, 2, 3 });
         AdjacencySettings red = new AdjacencySettings(1, Color.red, new List<int> { 0, 1 });
         AdjacencySettings blue = new AdjacencySettings(2, Color.blue, new List<int> { 0 });
         AdjacencySettings magenta = new AdjacencySettings(3, Color.magenta, new List<int> { });
 
-        AdjacencyLookup.AdjSettings = new Dictionary<int, AdjacencySettings>
+        AdjacencyLookup.AllAdjSettings = new Dictionary<int, AdjacencySettings>
         {
-            // Green connects to blue or red
+            // Green connects to random sets or corridors in either direction (if a perpendicular corridor is attempted, 
             {0, green},
-            // Blue connects to itself or green
+            // Red connects to corridors
             {1, red},
-            // Red connects to green
+            // Blue connects to dead ends
             {2, blue},
             // Magenta connects to nothing
             {3, magenta},
             // Magenta connects to nothing
-            {4, magenta}
+            {4, magenta},
+            // Magenta connects to nothing
+            {5, magenta}
         };
+
+        // Set up open and closed lookups
+        AdjacencyLookup.OpenAdjSettings = new();
+        AdjacencyLookup.WallAdjSettings = new();
+        foreach (int adjID in AdjacencyLookup.AllAdjSettings.Keys)
+        {
+            AdjacencySettings value = AdjacencyLookup.AllAdjSettings[adjID];
+            if (value.GetAllAllowedConnections().Count > 0)
+            {
+                // Open
+                AdjacencyLookup.OpenAdjSettings.Add(adjID, value);
+            }
+            else
+            {
+                // Closed
+                AdjacencyLookup.WallAdjSettings.Add(adjID, value);
+
+            }
+        }
+
+
+        // Now set up the tile presets lookup
+        AdjacencyLookup.AllTilePresets = new Dictionary<int, Dictionary<int, AdjacencySettings>>
+        {
+            {0, AdjacencyLookup.RandomSpawnTile()}, // Always open on all 4 sides
+            {1, AdjacencyLookup.RandomAdjacencySet() }, // Completely random set
+            {2, AdjacencyLookup.RandomCorridor(1)}, // Corridor in the x axis
+            {3, AdjacencyLookup.RandomCorridor(2)} // Corridor in the z axis
+        };
+
+
+
     }
 
-    HashSet<AdjacencySettings> GetAvailableSettings(Vector2 pos, int dir)
-    {
-        TileBlock neighbour = tiles[pos + DirToVector2(dir)];
-        if (neighbour is not null)
-        {
-            return neighbour.getAdjacency(AdjacencyLookup.ReverseDirection(dir)).getSettings().GetAllAllowedConnections();
-        }
-        else
-        {
-            return null;
-        }
-    }
 
 
     List<Vector2> GetValidNeighbourCoords(Vector2 centre, TileBlock tile)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,18 +16,20 @@ public class TileBlock : MonoBehaviour
 
     Dictionary<int, Adjacency> adjacencies;
 
+
     public void Initialise()
     {
         adjacencies = new Dictionary<int, Adjacency> { { 0, posX }, { 1, negX }, { 2, posZ }, { 3, negZ } };
     }
 
-    public void AssignSettings(Dictionary<int, AdjacencySettings> orderedSettings)
+    public TileBlock AssignSettings(Dictionary<int, AdjacencySettings> orderedSettings)
     {
         for (int i = 0; i < 4; i++)
         {
 
             adjacencies[i].AssignSettings(orderedSettings[i]);
         }
+        return this;
     }
 
 
@@ -34,7 +37,5 @@ public class TileBlock : MonoBehaviour
     {
         return adjacencies[direction];
     }
-
-
 
 }
