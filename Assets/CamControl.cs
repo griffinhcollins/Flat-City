@@ -13,6 +13,9 @@ public class CamControl : MonoBehaviour
     public float horizontalSensitivity;
     public float verticalSensitivity;
 
+    float camZoomSpeed = 0.1f;
+    float zoomedCamFOV = 30;
+    float defaultCamFOV = 70;
 
 
     private void Start()
@@ -24,9 +27,26 @@ public class CamControl : MonoBehaviour
     void Update()
     {
         UpdateRotation();
+        
     }
 
+    private void FixedUpdate()
+    {
+        UpdateZoom();
+    }
 
+    void UpdateZoom()
+    {
+        if (Input.GetMouseButton(1))
+        {
+            playerCam.fieldOfView = Mathf.Lerp(playerCam.fieldOfView, zoomedCamFOV, camZoomSpeed);
+        }
+        else
+        {
+            playerCam.fieldOfView = Mathf.Lerp(playerCam.fieldOfView, defaultCamFOV, camZoomSpeed);
+
+        }
+    }
 
     void UpdateRotation()
     {
