@@ -8,8 +8,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <ProjectGuid>{E8F681DD-A400-C7FA-9DA3-D278C27E6395}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -59,17 +58,16 @@
   <ItemGroup>
     <Compile Include="Assets\StarterAssets\InputSystem\StarterAssetsInputs.cs" />
     <Compile Include="Assets\Adjacency Assets\TilePlacer.cs" />
+    <Compile Include="Assets\CamControl.cs" />
     <Compile Include="Assets\StarterAssets\FirstPersonController\Scripts\FirstPersonController.cs" />
+    <Compile Include="Assets\MoveControl.cs" />
     <Compile Include="Assets\Adjacency Assets\Adjacency.cs" />
     <Compile Include="Assets\StarterAssets\FirstPersonController\Scripts\BasicRigidBodyPush.cs" />
     <Compile Include="Assets\Adjacency Assets\TileBlock.cs" />
     <Compile Include="Assets\Adjacency Assets\AdjacencyLookup.cs" />
     <Compile Include="Assets\Adjacency Assets\AdjacencySettings.cs" />
-    <Compile Include="Assets\CamControl.cs" />
-    <Compile Include="Assets\MoveControl.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include=".editorconfig" />
     <None Include="Assets\StarterAssets\license.txt" />
   </ItemGroup>
   <ItemGroup>

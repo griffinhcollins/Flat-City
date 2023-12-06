@@ -20,7 +20,7 @@ public class TilePlacer : MonoBehaviour
     GameObject open4Obj;
 
 
-    int numTiles = 1200;
+    int numTiles = 120;
     float scale = 10;
     Dictionary<Vector2, TileBlock> tiles;
 
