@@ -66,6 +66,7 @@
     <Compile Include="Assets\Adjacency Assets\TileBlock.cs" />
     <Compile Include="Assets\Adjacency Assets\AdjacencyLookup.cs" />
     <Compile Include="Assets\Adjacency Assets\AdjacencySettings.cs" />
+    <Compile Include="Assets\FastIKFabric.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\StarterAssets\license.txt" />
