@@ -36,8 +36,8 @@ public static class AdjacencyLookup
         if (direction <= 1)
         {
             return new Dictionary<int, AdjacencySettings> {
-            { 0, RandomAdjacency(OpenAdjSettings) },
-            { 1, RandomAdjacency(OpenAdjSettings) },
+            { 0, RandomAdjacency() },
+            { 1, RandomAdjacency() },
             { 2, RandomAdjacency(WallAdjSettings) },
             { 3, RandomAdjacency(WallAdjSettings) }
         };
@@ -47,11 +47,23 @@ public static class AdjacencyLookup
             return new Dictionary<int, AdjacencySettings> {
             { 0, RandomAdjacency(WallAdjSettings) },
             { 1, RandomAdjacency(WallAdjSettings) },
-            { 2, RandomAdjacency(OpenAdjSettings) },
-            { 3, RandomAdjacency(OpenAdjSettings) }
+            { 2, RandomAdjacency() },
+            { 3, RandomAdjacency() }
         };
         }
         
+    }
+
+    public static Dictionary<int, AdjacencySettings> RandomDeadEnd(int direction)
+    {
+        IEnumerable<int> wallDirs = new List<int> { 0, 1, 2, 3 }.Except<int>(new List<int> { direction });
+        Dictionary<int, AdjacencySettings> wallDict = new();
+        foreach (int wallDir in wallDirs)
+        {
+            wallDict.Add(wallDir, RandomAdjacency(WallAdjSettings));
+        }
+        wallDict.Add(direction, RandomAdjacency(OpenAdjSettings));
+        return wallDict;
     }
 
     public static Dictionary<int, AdjacencySettings> RandomAdjacencySet()

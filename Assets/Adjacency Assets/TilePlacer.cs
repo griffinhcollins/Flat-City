@@ -20,7 +20,7 @@ public class TilePlacer : MonoBehaviour
     GameObject open4Obj;
 
 
-    int numTiles = 120;
+    int numTiles = 1200;
     float scale = 10;
     Dictionary<Vector2, TileBlock> tiles;
 
@@ -31,19 +31,19 @@ public class TilePlacer : MonoBehaviour
         Vector2 c1 = coordCandidates.ElementAt(Random.Range(0, coordCandidates.Count));
         Vector2 c2 = coordCandidates.ElementAt(Random.Range(0, coordCandidates.Count));
 
-        int c1OpenSpace = 0;
-        int c2OpenSpace = 0;
+        int c1NeighbourCount = 0;
+        int c2NeighbourCount = 0;
 
-        foreach (Vector2 c1Neighbour in GetNeighbourCoords(c1))
+        foreach (Vector2 c1Neighbour in GetOrthDiagNeighbours(c1))
         {
-            c1OpenSpace += used.Contains(c1Neighbour) ? 1 : 0;
+            c1NeighbourCount += used.Contains(c1Neighbour) ? 1 : 0;
         }
-        foreach (Vector2 c2Neighbour in GetNeighbourCoords(c2))
+        foreach (Vector2 c2Neighbour in GetOrthDiagNeighbours(c2))
         {
-            c2OpenSpace += used.Contains(c2Neighbour) ? 1 : 0;
+            c2NeighbourCount += used.Contains(c2Neighbour) ? 1 : 0;
         }
 
-        return c1OpenSpace < c2OpenSpace ? c1 : c2;
+        return c1NeighbourCount < c2NeighbourCount ? c1 : c2;
     }
 
     void GenerateTiles()
@@ -95,9 +95,23 @@ public class TilePlacer : MonoBehaviour
             // Now that we know we're putting a tile down, we can decide what it will be
             if (existingNeighbourAdjacencies.Count == 1)
             {
-                // Free reign from whatever our only neighbour's adjacency is
-                newSlotSettings = existingNeighbourAdjacencies.First().GetRandomValidTileSettings();
+                int openDirection = openings.IndexOf(true);
+                if (Random.Range(0,4) == 0)
+                {
+                    // Dead end
+                    newSlotSettings = AdjacencyLookup.TileSettingsLookup(openDirection + 4);
+                    foreach (Vector2 widerNeighbour in GetOrthDiagNeighbours(newTileCoords))
+                    {
 
+                    }
+
+                }
+                else
+                {
+                    // Free reign from whatever our only neighbour's adjacency is
+                    newSlotSettings = existingNeighbourAdjacencies.First().GetRandomValidTileSettings();
+
+                }
             }
             else
             {
@@ -256,9 +270,7 @@ public class TilePlacer : MonoBehaviour
             // Magenta connects to nothing
             {3, magenta},
             // Magenta connects to nothing
-            {4, magenta},
-            // Magenta connects to nothing
-            {5, magenta}
+            {4, magenta}
         };
 
         // Set up open and closed lookups
@@ -287,7 +299,13 @@ public class TilePlacer : MonoBehaviour
             {0, AdjacencyLookup.RandomSpawnTile()}, // Always open on all 4 sides
             {1, AdjacencyLookup.RandomAdjacencySet() }, // Completely random set
             {2, AdjacencyLookup.RandomCorridor(1)}, // Corridor in the x axis
-            {3, AdjacencyLookup.RandomCorridor(2)} // Corridor in the z axis
+            {3, AdjacencyLookup.RandomCorridor(2)}, // Corridor in the z axis
+
+            // Dead ends are only open in their given direction
+            {4, AdjacencyLookup.RandomDeadEnd(0)},
+            {5, AdjacencyLookup.RandomDeadEnd(1)},
+            {6, AdjacencyLookup.RandomDeadEnd(2)},
+            {7, AdjacencyLookup.RandomDeadEnd(3)}
         };
 
 
@@ -308,6 +326,12 @@ public class TilePlacer : MonoBehaviour
             }
         }
         return validNeighbours;
+    }
+
+    List<Vector2> GetOrthDiagNeighbours(Vector2 centre)
+    {
+        return new List<Vector2> { centre + Vector2.right, centre + Vector2.left, centre + Vector2.up, centre + Vector2.down,
+            centre + Vector2.right + Vector2.up, centre + Vector2.right + Vector2.down, centre + Vector2.left + Vector2.up, centre + Vector2.left + Vector2.down,};
     }
 
     List<Vector2> GetNeighbourCoords(Vector2 centre)
