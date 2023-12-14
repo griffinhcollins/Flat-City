@@ -20,6 +20,8 @@ public class FastIKFabric : MonoBehaviour
 
     float snapbackStrength = 1f;
 
+    float snapSpeed = 0.3f;
+
     float[] boneLengths;
     float totalLength;
     Transform[] bones;
@@ -46,7 +48,7 @@ public class FastIKFabric : MonoBehaviour
     {
         if (target == null)
         {
-            Debug.Log("no target");
+            //Debug.Log("no target");
             return;
         }
 
@@ -130,12 +132,12 @@ public class FastIKFabric : MonoBehaviour
         // Set rotations for all except tip
         for (int i = 0; i < posLength - 1; i++)
         {
-            bones[i].rotation = Quaternion.FromToRotation(startSuccDirections[i], positions[i + 1] - positions[i]) * startBoneRotations[i];
+            bones[i].rotation = Quaternion.Lerp(bones[i].rotation,(Quaternion.FromToRotation(startSuccDirections[i], positions[i + 1] - positions[i]) * startBoneRotations[i]),snapSpeed);
         }
         // set tip
         bones[posLength - 1].rotation = target.rotation * Quaternion.Inverse(startTargetRotation) * startBoneRotations[posLength - 1];
 
-        SetBonePositions(positions);
+        //SetBonePositions(positions);
 
     }
 
@@ -156,7 +158,7 @@ public class FastIKFabric : MonoBehaviour
     {
         for (int i = 0; i < bones.Length; i++)
         {
-            bones[i].position = posList[i];
+            bones[i].position = Vector3.Lerp(bones[i].position, posList[i], snapSpeed);
         }
     }
 
