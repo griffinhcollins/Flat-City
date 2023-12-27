@@ -6,7 +6,7 @@ public class MoveControl : MonoBehaviour
 {
 
     Rigidbody rigidbody;
-    float speed = 4;
+    float speed = 4f;
 
 
     // Start is called before the first frame update
@@ -16,7 +16,7 @@ public class MoveControl : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         UpdateMove();
     }
@@ -33,9 +33,10 @@ public class MoveControl : MonoBehaviour
             movedir.Normalize();
         }
 
-        movedir *= Time.deltaTime * speed * (Input.GetKey(KeyCode.LeftShift) ? 1.3f : 1);
+        movedir *= speed * (Input.GetKey(KeyCode.LeftShift) ? 1.3f : 1);
 
-        transform.position += movedir;
+        rigidbody.MovePosition(transform.position + movedir * Time.deltaTime);
+
 
 
     }
