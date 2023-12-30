@@ -137,7 +137,7 @@ public class FastIKFabric : MonoBehaviour
         // set tip
         bones[posLength - 1].rotation = target.rotation * Quaternion.Inverse(startTargetRotation) * startBoneRotations[posLength - 1];
 
-        //SetBonePositions(positions);
+        SetBonePositions(positions);
 
     }
 
@@ -162,7 +162,7 @@ public class FastIKFabric : MonoBehaviour
         }
     }
 
-    void Init()
+    public void Init()
     {
         totalLength = 0;
         Transform current = transform;
@@ -171,7 +171,7 @@ public class FastIKFabric : MonoBehaviour
         boneLengths = new float[chainLength]; // one smaller because the last bone is always length 0, it's just the end
         startSuccDirections = new Vector3[chainLength + 1];
         startBoneRotations = new Quaternion[chainLength + 1];
-
+        Debug.Log(target);
         startTargetRotation = target.rotation;
 
         bool leaf = true;
