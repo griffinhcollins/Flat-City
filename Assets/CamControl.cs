@@ -50,6 +50,15 @@ public class CamControl : MonoBehaviour
 
     void UpdateZoom()
     {
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            defaultCamFOV = 80;
+        }
+        else
+        {
+            defaultCamFOV = 70;
+        }
+
         if (Input.GetMouseButton(1))
         {
             playerCam.fieldOfView = Mathf.Lerp(playerCam.fieldOfView, zoomedCamFOV, camZoomSpeed * 50 * Time.deltaTime);
