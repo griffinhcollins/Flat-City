@@ -74,7 +74,6 @@ StyleCopReport.xml
 *_p.c
 *_h.h
 *.ilk
-*.meta
 *.obj
 *.iobj
 *.pch
@@ -369,3 +368,10 @@ FodyWeavers.xsd
 /UserSettings
 /Temp
 /Library
+/Assets/StarterAssets.meta
+/Assets/Scenes.meta
+/Assets/NodeGraph.meta
+/Assets/MoveControl.cs.meta
+/Assets/InsectBehaviour.cs.meta
+/Assets/FastIKFabric.cs.meta
+/Assets/CamControl.cs.meta

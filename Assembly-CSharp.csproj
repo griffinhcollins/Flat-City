@@ -59,14 +59,15 @@
     <Compile Include="Assets\StarterAssets\InputSystem\StarterAssetsInputs.cs" />
     <Compile Include="Assets\Adjacency Assets\TilePlacer.cs" />
     <Compile Include="Assets\CamControl.cs" />
+    <Compile Include="Assets\FastIKFabric.cs" />
     <Compile Include="Assets\StarterAssets\FirstPersonController\Scripts\FirstPersonController.cs" />
     <Compile Include="Assets\MoveControl.cs" />
     <Compile Include="Assets\Adjacency Assets\Adjacency.cs" />
+    <Compile Include="Assets\InsectBehaviour.cs" />
     <Compile Include="Assets\StarterAssets\FirstPersonController\Scripts\BasicRigidBodyPush.cs" />
     <Compile Include="Assets\Adjacency Assets\TileBlock.cs" />
     <Compile Include="Assets\Adjacency Assets\AdjacencyLookup.cs" />
     <Compile Include="Assets\Adjacency Assets\AdjacencySettings.cs" />
-    <Compile Include="Assets\FastIKFabric.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\StarterAssets\license.txt" />
