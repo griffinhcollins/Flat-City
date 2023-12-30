@@ -13,9 +13,12 @@ public class CamControl : MonoBehaviour
     public float horizontalSensitivity;
     public float verticalSensitivity;
 
-    float camZoomSpeed = 0.1f;
+    float camZoomSpeed = 0.3f;
     float zoomedCamFOV = 30;
     float defaultCamFOV = 70;
+
+    float bodyFollowTightness = 0.8f;
+    float camHeight = 0.525f;
 
 
     private void Start()
@@ -26,24 +29,43 @@ public class CamControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        FollowBody();
         UpdateRotation();
-        
+        UpdateZoom();
+
+    }
+
+    void FollowBody()
+    {
+        // doing it this way rather than parenting prevents stuttering
+        Vector3 camTarget = playerBody.position + camHeight * Vector3.up;
+
+        transform.position = Vector3.Lerp(transform.position, camTarget, bodyFollowTightness * 40 * Time.deltaTime);
+
     }
 
     private void FixedUpdate()
     {
-        UpdateZoom();
     }
 
     void UpdateZoom()
     {
-        if (Input.GetMouseButton(1))
+        if (Input.GetKey(KeyCode.LeftShift))
         {
-            playerCam.fieldOfView = Mathf.Lerp(playerCam.fieldOfView, zoomedCamFOV, camZoomSpeed);
+            defaultCamFOV = 80;
         }
         else
         {
-            playerCam.fieldOfView = Mathf.Lerp(playerCam.fieldOfView, defaultCamFOV, camZoomSpeed);
+            defaultCamFOV = 70;
+        }
+
+        if (Input.GetMouseButton(1))
+        {
+            playerCam.fieldOfView = Mathf.Lerp(playerCam.fieldOfView, zoomedCamFOV, camZoomSpeed * 50 * Time.deltaTime);
+        }
+        else
+        {
+            playerCam.fieldOfView = Mathf.Lerp(playerCam.fieldOfView, defaultCamFOV, camZoomSpeed * 50 * Time.deltaTime);
 
         }
     }
@@ -54,7 +76,8 @@ public class CamControl : MonoBehaviour
         Vector3 camRotate = new Vector3(-1*Input.GetAxisRaw("Mouse Y") * verticalSensitivity, 0, 0);
         Vector3 bodyRotate = new Vector3(0, Input.GetAxisRaw("Mouse X") * horizontalSensitivity, 0);
 
-        transform.Rotate(camRotate);
+        playerCam.transform.Rotate(camRotate);
+        transform.Rotate(bodyRotate);
         playerBody.Rotate(bodyRotate);
 
     }
