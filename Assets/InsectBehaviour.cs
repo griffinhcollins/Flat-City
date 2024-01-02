@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class InsectBehaviour : MonoBehaviour
 {
@@ -53,22 +54,27 @@ public class InsectBehaviour : MonoBehaviour
 
     LinkedList<int> legsToMove;
 
-    float legDist = 0.8f;
-    float sinkInDepth = 0.3f;
-    float minStepLength = 0.8f;
-    float maxStepLength = 1.4f;
-    float stepThreshold = 1.4f;
+    float forwardOffset = 1f;
 
-    float minStepTime = 0.07f;
-    float maxStepTime = 0.1f;
+    float legDist = 0.5f;
+    float sinkInDepth = 0.0f;
+    float minStepLength = 0.8f;
+    float maxStepLength = 0.9f;
+    float stepThreshold = 1f;
+
+    float minStepTime = 0.14f;
+    float maxStepTime = 0.2f;
 
     int counter;
+
+    NavMeshAgent navAgent;
 
 
     Rigidbody insectBody;
     // Start is called before the first frame update
     void Start()
     {
+        navAgent = transform.parent.GetComponent<NavMeshAgent>();
         insectBody = GetComponent<Rigidbody>();
         legsToMove = new LinkedList<int>();
         counter = 0;
@@ -142,6 +148,7 @@ public class InsectBehaviour : MonoBehaviour
         Physics.Raycast(newStepRayStart, Vector3.down, out hitInfo, 10, LayerMask.GetMask("Ground"));
 
         nextStepPositions[legIndex] = hitInfo.point + sinkInDepth * Vector3.down;
+            //+ forwardOffset/20 * transform.up * navAgent.velocity.sqrMagnitude;
 
     }
 
@@ -197,16 +204,18 @@ public class InsectBehaviour : MonoBehaviour
 
     Vector3 CalculateLegRestPos(int legIndex)
     {
-        Vector3 legPos = (poles[legIndex].position - transform.position) * legDist + transform.position;
+        Vector3 legPos = (poles[legIndex].position - transform.position) * legDist;
+        Vector3 legTarget = Vector3.ProjectOnPlane(legPos, Vector3.up);
+        Vector3 rayAngle = legTarget * 1.2f - legPos;
         RaycastHit hitInfo;
-        Physics.Raycast(legPos, Vector3.down, out hitInfo, 10, LayerMask.GetMask("Ground"));
-        return hitInfo.point + sinkInDepth * Vector3.down;
+        Physics.Raycast(legPos + transform.position, rayAngle, out hitInfo, 10, LayerMask.GetMask("Ground"));
+        return hitInfo.point + sinkInDepth * rayAngle + forwardOffset * navAgent.velocity;
     }
 
     private void FixedUpdate()
     {
-        insectBody.velocity = transform.up * Input.GetAxis("Vertical") * 3;
-        insectBody.MoveRotation(transform.rotation * Quaternion.AngleAxis(Input.GetAxis("Horizontal") ,Vector3.forward));
+        //insectBody.velocity = transform.up * Input.GetAxis("Vertical") * 3;
+        //insectBody.MoveRotation(transform.rotation * Quaternion.AngleAxis(Input.GetAxis("Horizontal") ,Vector3.forward));
     }
 
     // Update is called once per frame
@@ -221,9 +230,9 @@ public class InsectBehaviour : MonoBehaviour
             }
         }
 
-        if (NumSteppingCurrently() <= 3 && legsToMove.Count > 0)
+        if (NumSteppingCurrently() <= 6 && legsToMove.Count > 0)
         {
-            Step(legsToMove.Last.Value);
+            Step(legsToMove.First.Value);
         }
 
 

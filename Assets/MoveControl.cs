@@ -15,7 +15,13 @@ public class MoveControl : MonoBehaviour
 
     AudioSource curFootsteps;
 
-    float walkVolume = 0.5f;
+    float walkVolume = 0.1f;
+
+
+    private void Awake()
+    {
+        References.player = transform;
+    }
 
     // Start is called before the first frame update
     void Start()

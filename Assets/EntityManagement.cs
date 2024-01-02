@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class EntityManagement : MonoBehaviour
 {
+    public Transform player;
+
+
     List<Transform> levelModules;
     List<WandererBehaviour> wanderers = new List<WandererBehaviour>();
 

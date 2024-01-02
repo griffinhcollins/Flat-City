@@ -5,8 +5,8 @@ using UnityEngine.AI;
 
 public class WandererBehaviour : MonoBehaviour
 {
-    [SerializeField]
-    EntityManagement manager;
+    
+    public EntityManagement manager;
 
     float startedPath;
     float currentPathTimeLimit;

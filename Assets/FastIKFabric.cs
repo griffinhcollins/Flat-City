@@ -20,7 +20,7 @@ public class FastIKFabric : MonoBehaviour
 
     float snapbackStrength = 1f;
 
-    float snapSpeed = 0.3f;
+    public float snapSpeed = 20f;
 
     float[] boneLengths;
     float totalLength;
@@ -77,6 +77,8 @@ public class FastIKFabric : MonoBehaviour
             for (int i = 1; i < posLength; i++)
             {
                 positions[i] = positions[i - 1] + direction * boneLengths[i - 1];
+                // make sure we're not clipping into the ground
+                positions[i].y = Mathf.Max(positions[i].y, 0);
             }
         }
         else
@@ -98,6 +100,7 @@ public class FastIKFabric : MonoBehaviour
                 for (int i = posLength - 2; i > 0; i--)
                 {
                     positions[i] = positions[i + 1] + boneLengths[i] * (positions[i] - positions[i + 1]).normalized;
+                    positions[i].y = Mathf.Max(positions[i].y, 0);
                 }
 
                 // Now forward, like backward but forward instead
@@ -107,6 +110,7 @@ public class FastIKFabric : MonoBehaviour
                 for (int i = 1; i < posLength; i++)
                 {
                     positions[i] = positions[i - 1] + boneLengths[i-1] * (positions[i] - positions[i - 1]).normalized;
+                    positions[i].y = Mathf.Max(positions[i].y, 0);
                 }
             }
         }
@@ -125,19 +129,26 @@ public class FastIKFabric : MonoBehaviour
                 float angle = Vector3.SignedAngle(projectedBone - positions[i - 1], projectedPole - positions[i - 1], plane.normal);
                 // Rotate around the vector pointing to this point from the last point (which is on the plane) and apply it
                 positions[i] = Quaternion.AngleAxis(angle, plane.normal) * (positions[i] - positions[i - 1]) + positions[i - 1];
+                positions[i].y = Mathf.Max(positions[i].y, 0);
             }
         }
 
-
+        float oldRot;
         // Set rotations for all except tip
         for (int i = 0; i < posLength - 1; i++)
         {
-            bones[i].rotation = Quaternion.Lerp(bones[i].rotation,(Quaternion.FromToRotation(startSuccDirections[i], positions[i + 1] - positions[i]) * startBoneRotations[i]),snapSpeed);
+            oldRot = bones[i + 1].position.y;
+            bones[i].rotation = Quaternion.Lerp(bones[i].rotation,(Quaternion.FromToRotation(startSuccDirections[i], positions[i + 1] - positions[i]) * startBoneRotations[i]),snapSpeed * Time.deltaTime * 1000);
+            
         }
         // set tip
+        //oldRot = bones[posLength - 1].rotation;
         bones[posLength - 1].rotation = target.rotation * Quaternion.Inverse(startTargetRotation) * startBoneRotations[posLength - 1];
-
-        SetBonePositions(positions);
+        //if (bones[posLength - 1].position.y <= 0)
+        //{
+        //    bones[posLength - 1].rotation = oldRot;
+        //}
+        //SetBonePositions(positions);
 
     }
 
@@ -153,6 +164,10 @@ public class FastIKFabric : MonoBehaviour
         return bonePos;
     }
 
+    public float GetSpeed()
+    {
+        return ((bones[bones.Length - 1].position - target.position).sqrMagnitude)/Mathf.Max(1, (target.position - positions[0]).sqrMagnitude / totalLength * totalLength);
+    }
 
     void SetBonePositions(Vector3[] posList)
     {
@@ -171,7 +186,6 @@ public class FastIKFabric : MonoBehaviour
         boneLengths = new float[chainLength]; // one smaller because the last bone is always length 0, it's just the end
         startSuccDirections = new Vector3[chainLength + 1];
         startBoneRotations = new Quaternion[chainLength + 1];
-        Debug.Log(target);
         startTargetRotation = target.rotation;
 
         bool leaf = true;
