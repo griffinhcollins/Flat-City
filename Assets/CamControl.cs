@@ -32,7 +32,25 @@ public class CamControl : MonoBehaviour
         FollowBody();
         UpdateRotation();
         UpdateZoom();
+        UpdateInteract();
+    }
 
+    void UpdateInteract()
+    {
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            RaycastHit hitinfo;
+            Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out hitinfo, 10);
+            if (hitinfo.collider == null)
+            {
+                return;
+            }
+            Interactable activatedObj = hitinfo.collider.GetComponent<Interactable>();
+            if (activatedObj != null)
+            {
+                activatedObj.Activate();
+            }
+        }
     }
 
     void FollowBody()
