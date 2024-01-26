@@ -56,35 +56,30 @@
     <Analyzer Include="C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\NodeGraph Assets\Items\TorchBehaviour.cs" />
     <Compile Include="Assets\StarterAssets\InputSystem\StarterAssetsInputs.cs" />
     <Compile Include="Assets\EntityManagement.cs" />
     <Compile Include="Assets\Adjacency Assets\TilePlacer.cs" />
     <Compile Include="Assets\FastIKFabric.cs" />
+    <Compile Include="Assets\InventoryManager.cs" />
     <Compile Include="Assets\StarterAssets\FirstPersonController\Scripts\FirstPersonController.cs" />
     <Compile Include="Assets\CamControl.cs" />
-    <Compile Include="Assets\Procedural Animation Test\Scripts\FootIKTarget.cs" />
+    <Compile Include="Assets\ChestBehaviour.cs" />
     <Compile Include="Assets\WatchEye.cs" />
+    <Compile Include="Assets\Interactable.cs" />
     <Compile Include="Assets\MoveControl.cs" />
     <Compile Include="Assets\Adjacency Assets\Adjacency.cs" />
     <Compile Include="Assets\InsectBehaviour.cs" />
     <Compile Include="Assets\WallAppendageBehaviour.cs" />
+    <Compile Include="Assets\NodeGraph Assets\Items\NoItem.cs" />
+    <Compile Include="Assets\Item.cs" />
+    <Compile Include="Assets\HoverBob.cs" />
     <Compile Include="Assets\StarterAssets\FirstPersonController\Scripts\BasicRigidBodyPush.cs" />
-    <Compile Include="Assets\Procedural Animation Test\Scripts\IKInsectController.cs" />
     <Compile Include="Assets\Adjacency Assets\TileBlock.cs" />
     <Compile Include="Assets\Adjacency Assets\AdjacencyLookup.cs" />
     <Compile Include="Assets\Adjacency Assets\AdjacencySettings.cs" />
-    <Compile Include="Assets\Procedural Animation Test\Scripts\LimbSide.cs" />
-    <Compile Include="Assets\Procedural Animation Test\Scripts\SimpleCameraFollow.cs" />
     <Compile Include="Assets\References.cs" />
-    <Compile Include="Assets\NavAgentProcController.cs" />
     <Compile Include="Assets\WandererBehaviour.cs" />
-    <Compile Include="Assets\ChestBehaviour.cs" />
-    <Compile Include="Assets\Interactable.cs" />
-    <Compile Include="Assets\HoverBob.cs" />
-    <Compile Include="Assets\Item.cs" />
-    <Compile Include="Assets\InventoryManager.cs" />
-    <Compile Include="Assets\NodeGraph Assets\Items\TorchBehaviour.cs" />
-    <Compile Include="Assets\NodeGraph Assets\Items\NoItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\StarterAssets\license.txt" />
